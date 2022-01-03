@@ -1,4 +1,4 @@
-package accounts
+package Accounts
 
 import (
 	"github.com/pborman/uuid"
@@ -6,9 +6,9 @@ import (
 )
 
 type AccountInterface interface {
-	Create()
-	ChangeStatus()
-	AccountList()
+	Create() (Account, error)
+	Load() ([]Account, error)
+	ChangeStatus() (bool, error)
 }
 type Account struct {
 	ID            uuid.UUID
@@ -20,8 +20,18 @@ type Account struct {
 	CreateDate    time.Time
 }
 
-func New() {
+func New() AccountInterface {
 	result := new(Account)
 	result.ID = uuid.NewRandom()
 	result.CreateDate = time.Now()
+	return result
+}
+func (a *Account) Create() (Account, error) {
+	return *a, nil
+}
+func (a *Account) Load() ([]Account, error) {
+	return nil, nil
+}
+func (a *Account) ChangeStatus() (bool, error) {
+	return false, nil
 }
