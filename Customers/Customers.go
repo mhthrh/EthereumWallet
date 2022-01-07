@@ -2,13 +2,8 @@ package Customers
 
 import (
 	"CurrencyServices/Utilitys"
-	"errors"
 	"github.com/pborman/uuid"
 	"time"
-)
-
-var (
-	err Utilitys.CustomError
 )
 
 type CustomerInterface interface {
@@ -26,27 +21,33 @@ type Customer struct {
 	Email         string
 	lastLoginDate time.Time
 	createDate    time.Time
+	exception     *[]Utilitys.JsonExceptions
 }
 
-func New() *Customer {
+func New(e *[]Utilitys.JsonExceptions) *Customer {
 	result := new(Customer)
 	result.id = uuid.NewRandom()
 	result.createDate = time.Now()
+	result.exception = e
 	return result
 }
-func (c *Customer) SignUp() (*Customer, error) {
-	err := Utilitys.NewError()
-	if err1 := Utilitys.CheckMail(c.Email); err1 != true {
-		err.Code = Utilitys.Email
-		errors.New("mail address is not valid")
+func (c *Customer) SignUp() (*Customer, *Utilitys.JsonExceptions) {
+	if err := Utilitys.CheckMail(c.Email); err != true {
+		return nil, Utilitys.SelectException(10000, c.exception)
 	}
-	if err1 := Utilitys.CheckPassword(c.Password); err1 != true {
-		return nil, errors.New("password is not valid")
+	if err := Utilitys.CheckPassword(c.Password); err != true {
+		return nil, Utilitys.SelectException(10001, c.exception)
 	}
-	if err1 := Utilitys.CheckPhoneNumber(c.CellNo); err1 != true {
-		return nil, errors.New("phone number is not valid")
+	if err := Utilitys.CheckPhoneNumber(c.CellNo); err != true {
+		return nil, Utilitys.SelectException(10002, c.exception)
 	}
-	return c, nil
+	if err := Utilitys.CheckName(c.UserName); err != true {
+		return nil, Utilitys.SelectException(10003, c.exception)
+	}
+	if err := Utilitys.CheckName(c.LastName); err != true {
+		return nil, Utilitys.SelectException(10004, c.exception)
+	}
+	return c, Utilitys.SelectException(0, c.exception)
 }
 func (c *Customer) SignIn() (*Customer, error) {
 	return c, nil

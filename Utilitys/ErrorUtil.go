@@ -1,32 +1,66 @@
 package Utilitys
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
+	"io/ioutil"
+	"os"
 )
 
-type CustomError struct {
-	when  time.Time
-	Where string
-	Dic   ErrorDictionary
+type Description struct {
+	TimeStamp  string `json:"TimeStamp"`
+	Action     string `json:"Action"`
+	MethodName string `json:"MethodName"`
+	LineNumber int    `json:"LineNumber"`
+	Priority   int    `json:"Priority"`
 }
-type ErrorDictionary struct {
-	Priority   int
-	Code       int
-	What       string
-	Suggestion string
+type Message struct {
+	GoMessage  string `json:"GoMessage"`
+	AppMessage string `json:"AppMessage"`
+	Suggestion string `json:"Suggestion"`
 }
-
-func GetErrorCode(C int) CustomError {
-
-}
-
-func NewError() CustomError {
-	err := new(CustomError)
-	err.when = time.Now()
-	return *err
+type Value struct {
+	Description `json:"Description"`
+	Message     `json:"Message"`
 }
 
-func (e *CustomError) RaiseError() string {
-	return fmt.Sprintf("%v: %s: %d: %d: %s: %s", e.when, e.Dic.What, e.Priority, e.Code, e.Suggestion, e.Where)
+type JsonExceptions struct {
+	Key   int `json:"Key"`
+	Value `json:"Value"`
+}
+
+func RaiseError() *[]JsonExceptions {
+	byte, err := ioutil.ReadFile("D://Projects//Go-lang//CurrencyServices//ApplicationFiles//Errors.json")
+	if err != nil {
+		fmt.Println("Can't open Errors file!", err)
+		ReadLine()
+		os.Exit(0)
+	}
+
+	var jsonMap []JsonExceptions
+	err = json.Unmarshal(byte, &jsonMap)
+	if err != nil {
+		fmt.Println("Can't Unmarshal Errors file!", err)
+		ReadLine()
+		os.Exit(0)
+	}
+	return &jsonMap
+}
+
+func SelectException(Code int, Array *[]JsonExceptions) *JsonExceptions {
+	for _, v := range *Array {
+		if Code == v.Key {
+			return &v
+		}
+	}
+
+	return &JsonExceptions{
+		0,
+		Value{
+			Description{
+				Priority: 100, LineNumber: -1, MethodName: "main", TimeStamp: "", Action: "Bepar rosh"},
+			Message{
+				GoMessage: "Redam", AppMessage: "Ridi", Suggestion: "Find some water or tissue. "},
+		},
+	}
 }

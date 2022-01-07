@@ -1,0 +1,38 @@
+[
+  {
+    "key": 0,
+    "Value": {
+      "Description": {
+        "TimeStamp": "",
+        "Action": "",
+        "MethodName": "Common",
+        "LineNumber": 0,
+        "Priority": 100
+      },
+      "Message": {
+        "GoMessage": "Success!",
+        "AppMessage": "Success",
+        "Suggestion": "Nothing"
+      }
+
+    }
+  },
+  {
+    "key": 10000,
+    "Value": {
+      "Description": {
+        "TimeStamp": "04/01/2022",
+        "Action": "Closing Database",
+        "MethodName": "SignUp",
+        "LineNumber": 27,
+        "Priority": 100
+      },
+      "Message": {
+        "GoMessage": "Koskhole, ridam to en code!",
+        "AppMessage": "Be ga raftim",
+        "Suggestion": "Az ga Bargard"
+      }
+
+    }
+  }
+  ]
