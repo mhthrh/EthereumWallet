@@ -3,34 +3,64 @@ package DbUtils
 import (
 	"CurrencyServices/Utilitys"
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 )
 
 type DatabaseInterfaces interface {
-	NewConnection(string, string, *[]Utilitys.JsonExceptions) (*DatabaseProperty, *Utilitys.JsonExceptions)
-	CloseConnection() *Utilitys.JsonExceptions
-	PgExecuteNonQuery(string) (*sql.Rows, *Utilitys.JsonExceptions)
-	PgGetTimestamp() (*sql.Rows, *Utilitys.JsonExceptions)
-	PgLastInsertId() (int, *Utilitys.JsonExceptions)
-}
-type DatabaseProperty struct {
-	ConnectionString string
-	Driver           string
-	Db               *sql.DB
-	exception        *[]Utilitys.JsonExceptions
+	NewConnection(*GreSQL)
+	CloseConnection()
+	PgExecuteNonQuery()
+	PgLastInsertId()
 }
 
-func NewConnection(cnn, drive string, e *[]Utilitys.JsonExceptions) (*DatabaseProperty, *Utilitys.JsonExceptions) {
-	d, err := sql.Open(drive, cnn)
+type GreSQLResult struct {
+	db        *sql.DB
+	Command   string
+	Exception *[]Utilitys.JsonExceptions
+	Status    *Utilitys.JsonExceptions
+	ResultSet interface{}
+}
+type GreSQL struct {
+	Host      string
+	Port      int32
+	User      string
+	Pass      string
+	Dbname    string
+	Driver    string
+	Exception *[]Utilitys.JsonExceptions
+}
+
+func NewConnection(g *GreSQL) *GreSQLResult {
+	r := new(GreSQLResult)
+	if g == nil {
+		g = &GreSQL{
+			Host:      "localhost",
+			Port:      5432,
+			User:      "postgres",
+			Pass:      "123456",
+			Dbname:    "Curency",
+			Driver:    "postgres",
+			Exception: Utilitys.RaiseError(),
+		}
+	}
+	r.Status = Utilitys.SelectException(0, g.Exception)
+	db, err := sql.Open(g.Driver, fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		g.Host, g.Port, g.User, g.Pass, g.Dbname))
 	if err != nil {
-		return &DatabaseProperty{Driver: drive, ConnectionString: cnn, Db: d, exception: e}, Utilitys.SelectException(10005, e)
+		r.Status = Utilitys.SelectException(10005, g.Exception)
 	}
-	return &DatabaseProperty{Driver: drive, ConnectionString: cnn, Db: d, exception: e}, Utilitys.SelectException(0, e)
+	r.Exception = g.Exception
+	r.db = db
+	r.Command = ""
+	r.ResultSet = nil
+	return r
 }
 
-func (d *DatabaseProperty) CloseConnection() *Utilitys.JsonExceptions {
-	if err := d.Db.Close(); err != nil {
-		return Utilitys.SelectException(10006, d.exception)
+func (d *GreSQLResult) CloseConnection() {
+	d.Status = Utilitys.SelectException(0, d.Exception)
+	if err := d.db.Close(); err != nil {
+		d.Status = Utilitys.SelectException(10006, d.Exception)
 	}
-	return Utilitys.SelectException(0, d.exception)
 }
