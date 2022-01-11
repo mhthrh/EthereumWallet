@@ -17,8 +17,8 @@ type DatabaseInterfaces interface {
 type GreSQLResult struct {
 	db        *sql.DB
 	Command   string
-	Exception *[]Utilitys.JsonExceptions
-	Status    *Utilitys.JsonExceptions
+	Exception *[]Utilitys.Exceptions
+	Status    *Utilitys.Exceptions
 	ResultSet interface{}
 }
 type GreSQL struct {
@@ -28,7 +28,7 @@ type GreSQL struct {
 	Pass      string
 	Dbname    string
 	Driver    string
-	Exception *[]Utilitys.JsonExceptions
+	Exception *[]Utilitys.Exceptions
 }
 
 func NewConnection(g *GreSQL) *GreSQLResult {

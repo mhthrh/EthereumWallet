@@ -8,7 +8,6 @@ import (
 type AccountInterface interface {
 	Create() (Account, error)
 	Load() ([]Account, error)
-	ChangeStatus() (bool, error)
 }
 type Account struct {
 	ID            uuid.UUID
@@ -31,7 +30,4 @@ func (a *Account) Create() (Account, error) {
 }
 func (a *Account) Load() ([]Account, error) {
 	return nil, nil
-}
-func (a *Account) ChangeStatus() (bool, error) {
-	return false, nil
 }

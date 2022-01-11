@@ -9,7 +9,7 @@ func (d *GreSQLResult) PgExecuteNonQuery() {
 	d.Status = Utilitys.SelectException(0, d.Exception)
 	d.ResultSet, err = d.db.Query(d.Command)
 	if err != nil {
-		d.Status = Utilitys.SelectException(10007, d.Exception)
+		d.Status = Utilitys.SelectException(10000, d.Exception)
 	}
 }
 

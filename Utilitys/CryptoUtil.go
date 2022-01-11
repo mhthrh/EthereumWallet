@@ -34,7 +34,6 @@ func Md5Sum(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-//CryptoInterface Decrypt   Encrypt
 type CryptoInterface interface {
 	Decrypt(string) (string, error)
 	Encrypt(string) (string, error)
@@ -52,7 +51,6 @@ func NewKey() CryptoInterface {
 	return key
 }
 
-//Encrypt key value
 func (k *KeyStr) Encrypt(text string) (string, error) {
 	key := []byte(k.strkey)
 	plaintext := []byte(text)
@@ -74,7 +72,6 @@ func (k *KeyStr) Encrypt(text string) (string, error) {
 	return Byteto64(gcm.Seal(nonce, nonce, plaintext, nil)), nil
 }
 
-//Decrypt key value
 func (k *KeyStr) Decrypt(text string) (string, error) {
 	key := []byte(k.strkey)
 	bb, _ := base64.StdEncoding.DecodeString(text)

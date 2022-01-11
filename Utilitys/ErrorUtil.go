@@ -24,12 +24,12 @@ type Value struct {
 	Message     `json:"Message"`
 }
 
-type JsonExceptions struct {
+type Exceptions struct {
 	Key   int `json:"Key"`
 	Value `json:"Value"`
 }
 
-func RaiseError() *[]JsonExceptions {
+func RaiseError() *[]Exceptions {
 	byte, err := ioutil.ReadFile("D://Projects//Go-lang//CurrencyServices//ApplicationFiles//Errors.json")
 	if err != nil {
 		fmt.Println("Can't open Errors file!", err)
@@ -37,7 +37,7 @@ func RaiseError() *[]JsonExceptions {
 		os.Exit(0)
 	}
 
-	var jsonMap []JsonExceptions
+	var jsonMap []Exceptions
 	err = json.Unmarshal(byte, &jsonMap)
 	if err != nil {
 		fmt.Println("Can't Unmarshal Errors file!", err)
@@ -47,14 +47,14 @@ func RaiseError() *[]JsonExceptions {
 	return &jsonMap
 }
 
-func SelectException(Code int, Array *[]JsonExceptions) *JsonExceptions {
+func SelectException(Code int, Array *[]Exceptions) *Exceptions {
 	for _, v := range *Array {
 		if Code == v.Key {
 			return &v
 		}
 	}
 
-	return &JsonExceptions{
+	return &Exceptions{
 		0,
 		Value{
 			Description{
