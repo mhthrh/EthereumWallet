@@ -1,11 +1,12 @@
 package Ethereum
 
 import (
-	"CurrencyServices/Utilitys"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/mhthrh/WalletServices/Utilitys"
 )
 
 type EtherInterface interface {
+	GetPrivate()
 }
 
 type Ether struct {

@@ -1,10 +1,10 @@
 package DbUtils
 
 import (
-	"CurrencyServices/Utilitys"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/mhthrh/WalletServices/Utilitys"
 )
 
 type DatabaseInterfaces interface {

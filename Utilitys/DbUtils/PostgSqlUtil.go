@@ -1,7 +1,7 @@
 package DbUtils
 
 import (
-	"CurrencyServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Utilitys"
 )
 
 func (d *GreSQLResult) PgExecuteNonQuery() {

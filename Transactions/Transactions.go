@@ -1,37 +1,42 @@
 package Transactions
 
 import (
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/pborman/uuid"
 	"time"
 )
 
 type TransactionInterface interface {
-	Send() (Transaction, error)
-	Buy() (Transaction, error)
-	Load() ([]Transaction, error)
+	Send()
+	Buy()
+	Load()
 }
 type Transaction struct {
 	ID          uuid.UUID
+	customerId  uuid.UUID
+	AccountId   uuid.UUID
 	Amount      float64
 	Destination string
 	TransDate   time.Time
-	Status      string
+	exception   *[]Utilitys.Exceptions
+	status      *Utilitys.Exceptions
 }
 
-func New() TransactionInterface {
+func New(e *[]Utilitys.Exceptions) *Transaction {
 	r := new(Transaction)
 	r.ID = uuid.NewRandom()
-	r.TransDate = time.Now()
+	r.exception = e
+	r.TransDate = Utilitys.GetDate("20/01/2020")
 	return r
 }
-func (t *Transaction) Send() (Transaction, error) {
-	return *t, nil
+func (t *Transaction) Send() {
+	return
 }
 
-func (t *Transaction) Buy() (Transaction, error) {
-	return *t, nil
+func (t *Transaction) Buy() {
+	return
 }
 
-func (t *Transaction) Load() ([]Transaction, error) {
-	return nil, nil
+func (t *Transaction) Load() {
+	return
 }

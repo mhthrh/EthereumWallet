@@ -1,8 +1,8 @@
 package TestPackages
 
 import (
-	"CurrencyServices/Utilitys"
 	"fmt"
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"testing"
 )
 

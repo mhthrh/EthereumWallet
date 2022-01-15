@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+	"github.com/mhthrh/WalletServices/Services"
+)
 
 func main() {
-	fmt.Println("test")
+	addr := flag.String("addr", ":8569", "the TCP address for the server to listen on, in the form 'host:port'")
+
+	fmt.Println(fmt.Sprintf("initalising server on %s", *addr))
+	Services.RunApi(*addr)
 }

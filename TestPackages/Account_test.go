@@ -1,8 +1,8 @@
 package TestPackages
 
 import (
-	"CurrencyServices/Accounts"
-	"CurrencyServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Accounts"
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/pborman/uuid"
 	"reflect"
 	"testing"

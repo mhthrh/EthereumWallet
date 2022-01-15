@@ -1,8 +1,8 @@
 package TestPackages
 
 import (
-	"CurrencyServices/Customers"
-	"CurrencyServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Customers"
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"testing"
 )
 
@@ -22,7 +22,7 @@ func TestCustomer_SignUp(t *testing.T) {
 				Password:  "Qaz@123789",
 				CellNo:    "+4477594488882",
 				Email:     "mhthrh@gmail.com",
-				Exception: nil,
+				Status:    nil,
 			},
 		},
 		{
@@ -34,7 +34,7 @@ func TestCustomer_SignUp(t *testing.T) {
 				Password:  "Qaz@123789",
 				CellNo:    "+4477594488882",
 				Email:     "mhthrh@gmail.com",
-				Exception: nil,
+				Status:    nil,
 			},
 		},
 	}
@@ -47,7 +47,7 @@ func TestCustomer_SignUp(t *testing.T) {
 		c.Password = tt.fields.Password
 		c.CellNo = tt.fields.CellNo
 		c.Email = tt.fields.Email
-		c.Exception = tt.fields.Exception
+		c.Status = tt.fields.Status
 
 		c.SignUp()
 	}
@@ -62,17 +62,17 @@ func TestCustomer_SignIn(t *testing.T) {
 		{
 			name: "test1",
 			fields: &Customers.Customer{
-				UserName:  "mhthrh",
-				Password:  "Qaz@123789",
-				Exception: nil,
+				UserName: "mhthrh",
+				Password: "Qaz@123789",
+				Status:   nil,
 			},
 		},
 		{
 			name: "test2",
 			fields: &Customers.Customer{
-				UserName:  "mhthrh1",
-				Password:  "Qaz@123789",
-				Exception: nil,
+				UserName: "mhthrh1",
+				Password: "Qaz@123789",
+				Status:   nil,
 			},
 		},
 	}
@@ -95,17 +95,17 @@ func TestCustomer_ChangePassword(t *testing.T) {
 		{
 			name: "test1",
 			fields: &Customers.Customer{
-				UserName:  "mhthrh",
-				Password:  "Qaz@123789",
-				Exception: nil,
+				UserName: "mhthrh",
+				Password: "Qaz@123789",
+				Status:   nil,
 			},
 		},
 		{
 			name: "test2",
 			fields: &Customers.Customer{
-				UserName:  "mhthrh1",
-				Password:  "Qaz@123789",
-				Exception: nil,
+				UserName: "mhthrh1",
+				Password: "Qaz@123789",
+				Status:   nil,
 			},
 		},
 	}

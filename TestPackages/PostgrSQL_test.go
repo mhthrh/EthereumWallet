@@ -1,10 +1,10 @@
 package TestPackages
 
 import (
-	"CurrencyServices/Utilitys"
-	"CurrencyServices/Utilitys/DbUtils"
 	"database/sql"
 	"fmt"
+	"github.com/mhthrh/WalletServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Utilitys/DbUtils"
 	"testing"
 )
 

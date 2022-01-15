@@ -1,11 +1,11 @@
 package Accounts
 
 import (
-	"CurrencyServices/Utilitys"
-	"CurrencyServices/Utilitys/DbUtils"
-	"CurrencyServices/Utilitys/Ethereum"
 	"database/sql"
 	"fmt"
+	"github.com/mhthrh/WalletServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Utilitys/DbUtils"
+	"github.com/mhthrh/WalletServices/Utilitys/Ethereum"
 	"github.com/pborman/uuid"
 	"time"
 )
@@ -20,6 +20,7 @@ type Account struct {
 	AccountName   string
 	AccountType   bool
 	PrivateKey    string
+	Byt           string
 	AccountString string
 	Balance       float64
 	CreateDate    time.Time
