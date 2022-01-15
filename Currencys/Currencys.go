@@ -3,10 +3,10 @@ package Currencys
 import "github.com/pborman/uuid"
 
 type CurrencyInterface interface {
-	Add() (Currency, error)
-	Active() (bool, error)
-	DeActive() (bool, error)
-	Load() ([]Currency, error)
+	Add()
+	Active()
+	DeActive()
+	Load() *[]Currency
 }
 type Currency struct {
 	ID           uuid.UUID
@@ -15,23 +15,8 @@ type Currency struct {
 	Status       bool
 }
 
-func New() CurrencyInterface {
+func New() Currency {
 	r := new(Currency)
 	r.ID = uuid.NewRandom()
-	return r
-}
-func (c *Currency) Add() (Currency, error) {
-	return *c, nil
-}
-
-func (c *Currency) Active() (bool, error) {
-	return true, nil
-}
-
-func (c *Currency) DeActive() (bool, error) {
-	return true, nil
-}
-
-func (c *Currency) Load() ([]Currency, error) {
-	return nil, nil
+	return *r
 }

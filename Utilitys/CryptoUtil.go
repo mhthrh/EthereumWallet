@@ -8,90 +8,108 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 )
 
-func Sha256(a string) string {
-	h := sha256.New()
-	h.Write([]byte(a))
-	return fmt.Sprintf("%x", h.Sum(nil))
+type CryptoInterface interface {
+	Decrypt()
+	Encrypt()
+	Sha256()
+	Md5Sum()
+}
+type Crypto struct {
+	key        string
+	FilePath   string
+	Text       string
+	Result     string
+	exceptions *[]Exceptions
+	Status     *Exceptions
 }
 
-func Md5Sum(filePath string) (string, error) {
-	file, err := os.Open(filePath)
+func NewKey() *Crypto {
+	k := new(Crypto)
+	k.key = "AnKoloft@~delNazok!12345" // key parameter must be 16, 24 or 32,
+	return k
+}
+
+func (k *Crypto) Sha256() {
+	h := sha256.New()
+	h.Write([]byte(k.Text))
+	k.Result = fmt.Sprintf("%x", h.Sum(nil))
+	k.Status = SelectException(0, k.exceptions)
+}
+
+func (k *Crypto) Md5Sum() {
+	file, err := os.Open(k.FilePath)
 	if err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
 	defer file.Close()
-
 	hash := md5.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
-	return hex.EncodeToString(hash.Sum(nil)), nil
+	k.Result = hex.EncodeToString(hash.Sum(nil))
 }
 
-type CryptoInterface interface {
-	Decrypt(string) (string, error)
-	Encrypt(string) (string, error)
-}
-
-//KeyStr lll
-type KeyStr struct {
-	strkey string
-}
-
-//NewKey ddd
-func NewKey() CryptoInterface {
-	key := new(KeyStr)
-	key.strkey = "AnKoloft@~delNazok!12345" // key parameter must be 16, 24 or 32,
-	return key
-}
-
-func (k *KeyStr) Encrypt(text string) (string, error) {
-	key := []byte(k.strkey)
-	plaintext := []byte(text)
+func (k *Crypto) Encrypt() {
+	key := []byte(k.key)
+	plaintext := []byte(k.Text)
 	c, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
-
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
 
-	return Byteto64(gcm.Seal(nonce, nonce, plaintext, nil)), nil
+	k.Result = Byteto64(gcm.Seal(nonce, nonce, plaintext, nil))
+	k.Status = SelectException(1000, k.exceptions)
 }
 
-func (k *KeyStr) Decrypt(text string) (string, error) {
-	key := []byte(k.strkey)
-	bb, _ := base64.StdEncoding.DecodeString(text)
+func (k *Crypto) Decrypt() {
+	key := []byte(k.key)
+	bb, _ := base64.StdEncoding.DecodeString(k.Text)
 	ciphertext := []byte(bb)
 	c, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return "", err
+		k.Status = SelectException(1000, k.exceptions)
+		return
 	}
 
 	nonceSize := gcm.NonceSize()
 	if len(ciphertext) < nonceSize {
-		return "", errors.New("ciphertext too short")
+		k.Status = SelectException(1000, k.exceptions)
+		return
+		//return "", errors.New("ciphertext too short")
 	}
 
 	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 	t, e := gcm.Open(nil, nonce, ciphertext, nil)
-	return BytesToString(t), e
+	if e != nil {
+		k.Status = SelectException(1000, k.exceptions)
+		return
+	}
+	k.Result = BytesToString(t)
+	k.Status = SelectException(0, k.exceptions)
+
 }
