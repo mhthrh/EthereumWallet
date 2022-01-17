@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/mhthrh/WalletServices/Utilitys/DbUtils"
-	"github.com/mhthrh/WalletServices/Utilitys/Ethereum"
 	"github.com/pborman/uuid"
 	"time"
 )
 
 type AccountInterface interface {
-	Create() (Account, error)
-	Load() ([]Account, error)
+	Create()
+	Load()
 }
 type Account struct {
 	Id            uuid.UUID
@@ -29,8 +28,8 @@ type Account struct {
 }
 
 var (
-	Ether *Ethereum.Ether
-	db    *DbUtils.GreSQLResult
+	//Ether *Ethereum.Ether
+	db *DbUtils.GreSQLResult
 )
 
 func init() {
@@ -44,12 +43,6 @@ func New(e *[]Utilitys.Exceptions) *Account {
 	result.AccountName = "New Account"
 	result.Balance = 0
 	result.AccountString = ""
-	Ether.GetPrivate()
-	if Ether.Status.Key != 0 {
-		Utilitys.SelectException(10000, e)
-		return nil
-	}
-	result.PrivateKey = Ether.PrivateKey
 	result.CreateDate = Utilitys.GetDate("15/10/2020")
 	result.exceptions = e
 	return result

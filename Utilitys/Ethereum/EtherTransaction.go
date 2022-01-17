@@ -47,7 +47,6 @@ func NewTransaction() *EtherTransaction {
 }
 
 func (t *EtherTransaction) SendTransEther() {
-
 	client, err := ethclient.Dial(t.Network.NetworkAddress)
 	if err != nil {
 		Utilitys.SelectException(10000, t.exception)

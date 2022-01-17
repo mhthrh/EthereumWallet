@@ -2,68 +2,67 @@ package Wallet
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mhthrh/WalletServices/Customers"
+	"github.com/mhthrh/WalletServices/Utilitys"
+	"io"
 	"net/http"
-	"strings"
 )
 
-type WallInterface interface {
-	SingUp(http.ResponseWriter, *http.Request)
+type RestApi interface {
+	Login(http.ResponseWriter, *http.Request)
 }
-type Services struct {
+
+var (
+	methods map[string]interface{}
+)
+
+type RestApiHandler struct {
 	User *Customers.Customer
 }
 
-func NewUser() *Services {
-	return &Services{User: &Customers.Customer{
-		FirstName: "",
-		LastName:  "",
-		UserName:  "",
-		Password:  "",
-		CellNo:    "",
-		Email:     "",
-		Status:    nil,
-	}}
+func New(e *[]Utilitys.Exceptions) {
+	methods = map[string]interface{}{
+		"signin": func(i io.Reader) *Utilitys.Exceptions {
+			a := Customers.New(e)
+			if a.Status.Key != 0 {
+				return a.Status
+			}
+			json.NewDecoder(i).Decode(&a)
+			a.SignIn()
+			return a.Status
+
+		},
+		"signup": func(i io.Reader) *Utilitys.Exceptions {
+			a := Customers.New(e)
+			if a.Status.Key != 0 {
+				return a.Status
+			}
+			json.NewDecoder(i).Decode(&a)
+			a.SignUp()
+			return a.Status
+		},
+	}
 }
 
-func (handler *Services) Login(w http.ResponseWriter, r *http.Request) {
+func (handler *RestApiHandler) PostMethod(w http.ResponseWriter, r *http.Request) {
 	op, ok := mux.Vars(r)["operation"]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "operation not Found.")
 		return
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&handler)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Could not Decode request body by error: %v", err)
-		return
-	}
-
-	switch strings.ToLower(op) {
-	case "signin":
-		handler.User.SignIn()
-		if handler.User.Status.Key != 0 {
-			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Could not find by error: %v", err)
-			return
-		}
-
-	case "signup":
-		handler.User.SignUp()
-		if handler.User.Status.Key != 0 {
-			fmt.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Could not Insert: %v", err)
-			return
+	for i, j := range methods {
+		if i == op {
+			if f, ok := j.(func(io.Reader) *Utilitys.Exceptions); ok {
+				if f(r.Body).Key == 0 {
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode("OK")
+					return
+				}
+			}
 		}
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(handler.User)
-
+	w.WriteHeader(http.StatusInternalServerError)
+	json.NewEncoder(w).Encode("Nok")
 }

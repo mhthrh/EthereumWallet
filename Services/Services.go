@@ -1,22 +1,29 @@
 package Services
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/mhthrh/WalletServices/Wallet"
 	"net/http"
 )
 
+var (
+	Exc *[]Utilitys.Exceptions
+)
+
+func init() {
+	Exc = Utilitys.RaiseError()
+}
+
 func RunApi(endpoint string) error {
-	r := mux.NewRouter()
-	RunApiOnRouter(r)
-	fmt.Println("Server Started ...")
-	return http.ListenAndServe(endpoint, r)
+	router := mux.NewRouter()
+	RunApiOnRouter(router)
+	return http.ListenAndServe(endpoint, router)
 }
 
 func RunApiOnRouter(r *mux.Router) {
-	apiRouter := r.PathPrefix("/api/Wallet").Subrouter()
-	apiRouter.Methods("POST").Path("/{operation:(?:SignIn|SignUp)}").HandlerFunc(Wallet.NewUser().Login)
-	//apiRouter.Methods("GET").Path("/SignIn/{search}").HandlerFunc(Wallet.NewUser().SingUp)
-
+	var handler Wallet.RestApiHandler
+	Wallet.New(Exc)
+	r.PathPrefix("/api/Wallet/login").Subrouter().Methods("POST").Path("/{operation:(?:signin|signup)}").HandlerFunc(handler.PostMethod)
+	r.PathPrefix("/api/Wallet/account").Subrouter().Methods("POST").Path("/{operation:(?:create|load)}").HandlerFunc(handler.PostMethod)
 }
