@@ -28,7 +28,6 @@ type Account struct {
 }
 
 var (
-	//Ether *Ethereum.Ether
 	db *DbUtils.GreSQLResult
 )
 
@@ -52,6 +51,7 @@ func (a *Account) Create() {
 		a.Status = Utilitys.SelectException(10000, a.exceptions)
 		return
 	}
+	a.Status = nil
 	db.Command = fmt.Sprintf("insert into ........")
 	db.PgExecuteNonQuery()
 	if db.Status.Key != 0 {
@@ -61,6 +61,7 @@ func (a *Account) Create() {
 	a.Status = Utilitys.SelectException(0, a.exceptions)
 }
 func (a *Account) Load() *[]Account {
+	a.Status = nil
 	var result []Account
 	var account Account
 	db.Command = fmt.Sprintf("select  ........")

@@ -11,7 +11,6 @@ func CheckPassword(pass string) bool {
 		upp, low, num, sym bool
 		tot                uint8
 	)
-
 	for _, char := range pass {
 		switch {
 		case unicode.IsUpper(char):

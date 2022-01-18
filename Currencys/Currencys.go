@@ -1,13 +1,9 @@
 package Currencys
 
-import "github.com/pborman/uuid"
+import (
+	"github.com/pborman/uuid"
+)
 
-type CurrencyInterface interface {
-	Add()
-	Active()
-	DeActive()
-	Load() *[]Currency
-}
 type Currency struct {
 	ID           uuid.UUID
 	Name         string
@@ -15,8 +11,6 @@ type Currency struct {
 	Status       bool
 }
 
-func New() Currency {
-	r := new(Currency)
-	r.ID = uuid.NewRandom()
-	return *r
+func Load() *[]Currency {
+	return nil
 }

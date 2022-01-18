@@ -2,8 +2,13 @@ package Wallet
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/mhthrh/WalletServices/Accounts"
+	"github.com/mhthrh/WalletServices/Currencys"
 	"github.com/mhthrh/WalletServices/Customers"
+	"github.com/mhthrh/WalletServices/Networks"
+	"github.com/mhthrh/WalletServices/Transactions"
 	"github.com/mhthrh/WalletServices/Utilitys"
 	"io"
 	"net/http"
@@ -14,45 +19,63 @@ type RestApi interface {
 }
 
 var (
-	methods map[string]interface{}
+	methods     *map[string]interface{}
+	user        *Customers.Customer
+	account     *Accounts.Account
+	transaction *Transactions.Transaction
 )
 
-type RestApiHandler struct {
-	User *Customers.Customer
-}
+func New(e *[]Utilitys.Exceptions) bool {
 
-func New(e *[]Utilitys.Exceptions) {
-	methods = map[string]interface{}{
-		"signin": func(i io.Reader) *Utilitys.Exceptions {
-			a := Customers.New(e)
-			if a.Status.Key != 0 {
-				return a.Status
+	if account = Accounts.New(e); account.Status != nil {
+		return false
+	}
+	if transaction = Transactions.New(e); transaction.Status != nil {
+		return false
+	}
+	methods = &map[string]interface{}{
+		"signIn": func(i io.Reader) *Utilitys.Exceptions {
+			if user = Customers.New(e); user.Status != nil {
+				return Utilitys.SelectException(10000, e)
 			}
-			json.NewDecoder(i).Decode(&a)
-			a.SignIn()
-			return a.Status
-
+			json.NewDecoder(i).Decode(&user)
+			user.SignIn()
+			return user.Status
 		},
-		"signup": func(i io.Reader) *Utilitys.Exceptions {
-			a := Customers.New(e)
-			if a.Status.Key != 0 {
-				return a.Status
+		"signUp": func(i io.Reader) *Utilitys.Exceptions {
+			if user = Customers.New(e); user.Status != nil {
+				return Utilitys.SelectException(10000, e)
 			}
-			json.NewDecoder(i).Decode(&a)
-			a.SignUp()
-			return a.Status
+			json.NewDecoder(i).Decode(&user)
+			user.SignUp()
+			return user.Status
+		},
+		"createAcc": func(i io.Reader) *Utilitys.Exceptions {
+			json.NewDecoder(i).Decode(&account)
+			account.Create()
+			return user.Status
+		},
+		"sendTrans": func(i io.Reader) *Utilitys.Exceptions {
+			json.NewDecoder(i).Decode(&transaction)
+			transaction.Send()
+			return user.Status
+		},
+		"buyTrans": func(i io.Reader) *Utilitys.Exceptions {
+			json.NewDecoder(i).Decode(&transaction)
+			transaction.Buy()
+			return user.Status
 		},
 	}
+	return true
 }
 
-func (handler *RestApiHandler) PostMethod(w http.ResponseWriter, r *http.Request) {
+func PostMethod(w http.ResponseWriter, r *http.Request) {
 	op, ok := mux.Vars(r)["operation"]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	for i, j := range methods {
+	for i, j := range *methods {
 		if i == op {
 			if f, ok := j.(func(io.Reader) *Utilitys.Exceptions); ok {
 				if f(r.Body).Key == 0 {
@@ -65,4 +88,31 @@ func (handler *RestApiHandler) PostMethod(w http.ResponseWriter, r *http.Request
 	}
 	w.WriteHeader(http.StatusInternalServerError)
 	json.NewEncoder(w).Encode("Nok")
+}
+
+func AllNetwork(w http.ResponseWriter, r *http.Request) {
+	b, _ := json.Marshal(Networks.Load())
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+}
+
+func AllCurrency(w http.ResponseWriter, r *http.Request) {
+	b, _ := json.Marshal(Currencys.Load())
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+
+}
+func LoadTransactions(w http.ResponseWriter, r *http.Request) {
+
+	b, _ := json.Marshal(transaction.Load())
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+
+}
+func LoadAccounts(w http.ResponseWriter, r *http.Request) {
+
+	b, _ := json.Marshal(account.Load())
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+
 }

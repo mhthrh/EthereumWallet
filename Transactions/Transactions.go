@@ -9,7 +9,7 @@ import (
 type TransactionInterface interface {
 	Send()
 	Buy()
-	Load()
+	Load() *[]Transaction
 }
 type Transaction struct {
 	ID          uuid.UUID
@@ -19,7 +19,7 @@ type Transaction struct {
 	Destination string
 	TransDate   time.Time
 	exception   *[]Utilitys.Exceptions
-	status      *Utilitys.Exceptions
+	Status      *Utilitys.Exceptions
 }
 
 func New(e *[]Utilitys.Exceptions) *Transaction {
@@ -37,6 +37,6 @@ func (t *Transaction) Buy() {
 	return
 }
 
-func (t *Transaction) Load() {
-	return
+func (t *Transaction) Load() *[]Transaction {
+	return nil
 }
