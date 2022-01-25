@@ -18,7 +18,7 @@ type Config struct {
 func ReadConfig() *Config {
 	byte, err := ioutil.ReadFile("Config.json")
 	if err != nil {
-		fmt.Println("Can't open Errors file!", err)
+		fmt.Println("Can't open Exceptions file!", err)
 		ReadLine()
 		os.Exit(0)
 	}
@@ -26,7 +26,7 @@ func ReadConfig() *Config {
 	var jsonMap *Config
 	err = json.Unmarshal(byte, &jsonMap)
 	if err != nil {
-		fmt.Println("Can't Unmarshal Errors file!", err)
+		fmt.Println("Can't Unmarshal Exceptions file!", err)
 		ReadLine()
 		os.Exit(0)
 	}

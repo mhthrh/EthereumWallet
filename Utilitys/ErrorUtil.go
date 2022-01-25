@@ -1,66 +1,39 @@
 package Utilitys
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-)
-
-type Description struct {
-	TimeStamp  string `json:"TimeStamp"`
-	Action     string `json:"Action"`
-	MethodName string `json:"MethodName"`
-	LineNumber int    `json:"LineNumber"`
-	Priority   int    `json:"Priority"`
+type Duration struct {
+	StartTimeStamp string `json:"StartTimeStamp"`
 }
 type Message struct {
-	GoMessage  string `json:"GoMessage"`
-	AppMessage string `json:"AppMessage"`
-	Suggestion string `json:"Suggestion"`
+	GoMessage  interface{} `json:"GoMessage"`
+	AppMessage string      `json:"AppMessage"`
 }
-type Value struct {
-	Description `json:"Description"`
-	Message     `json:"Message"`
+type Object struct {
+	Name string      `json:"Name"`
+	Obj  interface{} `json:"Obj"`
 }
-
-type Exceptions struct {
-	Key   int `json:"Key"`
-	Value `json:"Value"`
+type LogInstance struct {
+	Duration `json:"Meta"`
+	Message  `json:"Message"`
+	Object   `json:"Object"`
 }
-
-func RaiseError() *[]Exceptions {
-	byte, err := ioutil.ReadFile("D://Projects//Go-lang//CurrencyServices//ApplicationFiles//Errors.json")
-	if err != nil {
-		fmt.Println("Can't open Errors file!", err)
-		ReadLine()
-		os.Exit(0)
-	}
-
-	var jsonMap []Exceptions
-	err = json.Unmarshal(byte, &jsonMap)
-	if err != nil {
-		fmt.Println("Can't Unmarshal Errors file!", err)
-		ReadLine()
-		os.Exit(0)
-	}
-	return &jsonMap
+type Log struct {
+	Key             string        `json:"Key"`
+	value           []LogInstance `json:"value"`
+	FinishTimeStamp string        `json:"StartTimeStamp"`
 }
 
-func SelectException(Code int, Array *[]Exceptions) *Exceptions {
-	for _, v := range *Array {
-		if Code == v.Key {
-			return &v
-		}
-	}
-
-	return &Exceptions{
-		0,
-		Value{
-			Description{
-				Priority: 100, LineNumber: -1, MethodName: "main", TimeStamp: "", Action: "Bepar rosh"},
-			Message{
-				GoMessage: "Redam", AppMessage: "Ridi", Suggestion: "Find some water or tissue. "},
+func Logger(name, appMessage string, obj, last interface{}) *LogInstance {
+	return &LogInstance{
+		Duration: Duration{
+			StartTimeStamp: GetDate(""),
+		},
+		Message: Message{
+			GoMessage:  last,
+			AppMessage: appMessage,
+		},
+		Object: Object{
+			Name: name,
+			Obj:  obj,
 		},
 	}
 }

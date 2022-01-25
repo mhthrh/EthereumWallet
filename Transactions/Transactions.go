@@ -3,7 +3,6 @@ package Transactions
 import (
 	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/pborman/uuid"
-	"time"
 )
 
 type TransactionInterface interface {
@@ -17,26 +16,23 @@ type Transaction struct {
 	AccountId   uuid.UUID
 	Amount      float64
 	Destination string
-	TransDate   time.Time
-	exception   *[]Utilitys.Exceptions
-	Status      *Utilitys.Exceptions
+	TransDate   string
 }
 
-func New(e *[]Utilitys.Exceptions) *Transaction {
+func New() (*Transaction, *Utilitys.LogInstance) {
 	r := new(Transaction)
 	r.ID = uuid.NewRandom()
-	r.exception = e
-	r.TransDate = Utilitys.GetDate("20/01/2020")
-	return r
+	r.TransDate = Utilitys.GetDate("date")
+	return r, nil
 }
-func (t *Transaction) Send() {
-	return
-}
-
-func (t *Transaction) Buy() {
-	return
-}
-
-func (t *Transaction) Load() *[]Transaction {
+func (t *Transaction) Send() *Utilitys.LogInstance {
 	return nil
+}
+
+func (t *Transaction) Buy() *Utilitys.LogInstance {
+	return nil
+}
+
+func (t *Transaction) Load() (*[]Transaction, *Utilitys.LogInstance) {
+	return nil, nil
 }

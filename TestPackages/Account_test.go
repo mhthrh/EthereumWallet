@@ -1,12 +1,11 @@
 package TestPackages
 
 import (
+	"fmt"
 	"github.com/mhthrh/WalletServices/Accounts"
-	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/pborman/uuid"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func TestAccount_Create(t *testing.T) {
@@ -18,9 +17,7 @@ func TestAccount_Create(t *testing.T) {
 		PrivateKey    string
 		AccountString string
 		Balance       float64
-		CreateDate    time.Time
-		exceptions    *[]Utilitys.Exceptions
-		Status        *Utilitys.Exceptions
+		CreateDate    string
 	}
 	tests := []struct {
 		name   string
@@ -39,7 +36,6 @@ func TestAccount_Create(t *testing.T) {
 				AccountString: tt.fields.AccountString,
 				Balance:       tt.fields.Balance,
 				CreateDate:    tt.fields.CreateDate,
-				Status:        tt.fields.Status,
 			}
 			a.Create()
 		})
@@ -55,9 +51,7 @@ func TestAccount_Load(t *testing.T) {
 		PrivateKey    string
 		AccountString string
 		Balance       float64
-		CreateDate    time.Time
-		exceptions    *[]Utilitys.Exceptions
-		Status        *Utilitys.Exceptions
+		CreateDate    string
 	}
 	tests := []struct {
 		name   string
@@ -77,10 +71,10 @@ func TestAccount_Load(t *testing.T) {
 				AccountString: tt.fields.AccountString,
 				Balance:       tt.fields.Balance,
 				CreateDate:    tt.fields.CreateDate,
-				Status:        tt.fields.Status,
 			}
-			if got := a.Load(); !reflect.DeepEqual(got, tt.want) {
+			if got, err := a.Load(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Load() = %v, want %v", got, tt.want)
+				fmt.Println(err)
 			}
 		})
 	}

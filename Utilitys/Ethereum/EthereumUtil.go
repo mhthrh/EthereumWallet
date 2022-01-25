@@ -12,41 +12,34 @@ type EtherInterface interface {
 type Ether struct {
 	PrivateKey string
 	BytString  string
-	exceptions *[]Utilitys.Exceptions
-	Status     *Utilitys.Exceptions
 }
 
-func New(s *[]Utilitys.Exceptions) *Ether {
-	e := new(Ether)
-	e.exceptions = s
-	return e
+func New() (*Ether, *Utilitys.LogInstance) {
+	return new(Ether), nil
 }
 
-func (e *Ether) GetPrivate() {
+func (e *Ether) GetPrivate() *Utilitys.LogInstance {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
-		e.Status = Utilitys.SelectException(10000, e.exceptions)
-		return
+		return Utilitys.Logger("GetPrivate", "Generate key bega", e, err)
 	}
-	k := Utilitys.NewKey()
-	if k.Status.Key != 0 {
-		e.Status = Utilitys.SelectException(10000, e.exceptions)
-		return
+	k, err2 := Utilitys.NewKey()
+	if err2 != nil {
+		return Utilitys.Logger("GetPrivate", "Generate key bega", e, err2)
 	}
 
 	privateKeyByte := crypto.FromECDSA(privateKey)
 	k.Text = string(privateKeyByte[:2])
-	k.Encrypt()
-	if k.Status.Key != 0 {
-		e.Status = Utilitys.SelectException(10000, e.exceptions)
-		return
+
+	if err := k.Encrypt(); err != nil {
+		return Utilitys.Logger("GetPrivate", "Generate key bega", e, err)
 	}
 	e.BytString = k.Result
 	k.Text = string(privateKeyByte[2:])
-	k.Encrypt()
-	if k.Status.Key != 0 {
-		e.Status = Utilitys.SelectException(10000, e.exceptions)
-		return
+
+	if err := k.Encrypt(); err != nil {
+		return Utilitys.Logger("GetPrivate", "Generate key bega", e, err)
 	}
 	e.PrivateKey = k.Result
+	return nil
 }

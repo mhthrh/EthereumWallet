@@ -22,63 +22,55 @@ type Account struct {
 	Byt           string
 	AccountString string
 	Balance       float64
-	CreateDate    time.Time
-	exceptions    *[]Utilitys.Exceptions
-	Status        *Utilitys.Exceptions
+	CreateDate    string
 }
 
 var (
-	db *DbUtils.GreSQLResult
+	db  *DbUtils.GreSQLResult
+	err *Utilitys.LogInstance
 )
 
 func init() {
-	db = DbUtils.NewConnection(nil)
+	db, err = DbUtils.NewConnection(nil)
 }
 
-func New(e *[]Utilitys.Exceptions) *Account {
+func New() (*Account, *Utilitys.LogInstance) {
 	result := new(Account)
+	if err != nil {
+		return nil, Utilitys.Logger("NewConnection", "Db Connection error", result, err)
+	}
 	result.Id = uuid.NewRandom()
-	result.CreateDate = time.Now()
+	result.CreateDate = time.Now().Format("21-12-2006")
 	result.AccountName = "New Account"
 	result.Balance = 0
 	result.AccountString = ""
-	result.CreateDate = Utilitys.GetDate("15/10/2020")
-	result.exceptions = e
-	return result
+	return result, nil
 }
-func (a *Account) Create() {
+func (a *Account) Create() *Utilitys.LogInstance {
 	if a == nil {
-		a.Status = Utilitys.SelectException(10000, a.exceptions)
-		return
+		return Utilitys.Logger("Create", "Db Connection error", a, nil)
 	}
-	a.Status = nil
 	db.Command = fmt.Sprintf("insert into ........")
-	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		a.Status = Utilitys.SelectException(10000, a.exceptions)
-		return
+
+	if err := db.PgExecuteNonQuery(); err != nil {
+		return Utilitys.Logger("Create", "Db Connection error", a, err)
 	}
-	a.Status = Utilitys.SelectException(0, a.exceptions)
+	return nil
 }
-func (a *Account) Load() *[]Account {
-	a.Status = nil
+func (a *Account) Load() (*[]Account, *Utilitys.LogInstance) {
 	var result []Account
 	var account Account
 	db.Command = fmt.Sprintf("select  ........")
-	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		a.Status = Utilitys.SelectException(10000, a.exceptions)
-		return nil
+
+	if err := db.PgExecuteNonQuery(); err != nil {
+		return nil, Utilitys.Logger("Create", "Db Connection error", a, err)
 	}
 	for db.ResultSet.(*sql.Rows).Next() {
 		err := db.ResultSet.(*sql.Rows).Scan(&account.Id, account.CustomerID, account.AccountName, account.PrivateKey, account.AccountString, account.Balance, account.CreateDate)
 		if err != nil {
-			a.Status = Utilitys.SelectException(10000, a.exceptions)
-			return nil
+			return nil, Utilitys.Logger("Create", "Db Connection error", a, err)
 		}
 		result = append(result, account)
-
 	}
-	a.Status = Utilitys.SelectException(0, a.exceptions)
-	return &result
+	return &result, nil
 }

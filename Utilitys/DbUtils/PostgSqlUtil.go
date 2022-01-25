@@ -4,19 +4,19 @@ import (
 	"github.com/mhthrh/WalletServices/Utilitys"
 )
 
-func (d *GreSQLResult) PgExecuteNonQuery() {
+func (d *GreSQLResult) PgExecuteNonQuery() *Utilitys.LogInstance {
 	var err error
-	d.Status = Utilitys.SelectException(0, d.Exception)
 	d.ResultSet, err = d.db.Query(d.Command)
 	if err != nil {
-		d.Status = Utilitys.SelectException(10000, d.Exception)
+		return Utilitys.Logger("PgExecuteNonQuery", "SQL execution Error", d, err)
 	}
+	return nil
 }
 
-func (d *GreSQLResult) PgLastInsertId() {
-	d.Status = Utilitys.SelectException(0, d.Exception)
+func (d *GreSQLResult) PgLastInsertId() *Utilitys.LogInstance {
 	err := d.db.QueryRow(d.Command).Scan(&d.ResultSet)
 	if err != nil {
-		d.Status = Utilitys.SelectException(10007, d.Exception)
+		return Utilitys.Logger("PgExecuteNonQuery", "SQL execution Error", d, err)
 	}
+	return nil
 }

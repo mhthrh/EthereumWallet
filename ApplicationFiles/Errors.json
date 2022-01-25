@@ -2,17 +2,17 @@
   {
     "key": 0,
     "Value": {
-      "Description": {
+      "Meta": {
         "TimeStamp": "",
-        "Action": "",
-        "MethodName": "Common",
-        "LineNumber": 0,
         "Priority": 100
       },
       "Message": {
         "GoMessage": "Success!",
-        "AppMessage": "Success",
-        "Suggestion": "Nothing"
+        "AppMessage": "Success"
+      },
+      "Status": {
+        "Code": "Success!",
+        "Description": "Success"
       }
 
     }
@@ -20,17 +20,17 @@
   {
     "key": 10000,
     "Value": {
-      "Description": {
+      "Meta": {
         "TimeStamp": "04/01/2022",
-        "Action": "Closing Database",
-        "MethodName": "SignUp",
-        "LineNumber": 27,
         "Priority": 100
       },
       "Message": {
         "GoMessage": "Koskhole, ridam to en code!",
-        "AppMessage": "Be ga raftim",
-        "Suggestion": "Az ga Bargard"
+        "AppMessage": "Be ga raftim"
+      },
+      "Status": {
+        "Code": "Success!",
+        "Description": "Success"
       }
 
     }

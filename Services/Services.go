@@ -5,43 +5,37 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/mhthrh/WalletServices/Wallet"
 	"net/http"
 )
 
-var (
-	Exc *[]Utilitys.Exceptions
-)
-
-func init() {
-	Exc = Utilitys.RaiseError()
-}
-
 func RunApi(endpoint string) error {
 	router := mux.NewRouter()
 	if !RunApiOnRouter(router) {
-		return errors.New("fucking wallet initiation")
+		return errors.New("fucking wallet Not initialize")
 	}
 	return http.ListenAndServe(endpoint, router)
 }
 
 func RunApiOnRouter(r *mux.Router) bool {
-	if !Wallet.New(Exc) {
+	if !Wallet.New() {
 		return false
 	}
+	sub := r.PathPrefix("/api/wallet").Subrouter()
 
-	r.PathPrefix("/api/wallet/login").Subrouter().Methods("POST").Path("/{operation:(?:signIn|signUp)}").HandlerFunc(Wallet.PostMethod)
-	r.PathPrefix("/api/wallet/account").Subrouter().Methods("POST").Path("/Create").HandlerFunc(Wallet.PostMethod)
-	r.PathPrefix("/api/wallet/account").Subrouter().Methods("GET").Path("/load").HandlerFunc(Wallet.LoadAccounts)
-	r.PathPrefix("/api/wallet/Transaction").Subrouter().Methods("POST").Path("/{operation:(?:Send|Buy)}").HandlerFunc(Wallet.PostMethod)
-	r.PathPrefix("/api/wallet/Transaction").Subrouter().Methods("GET").Path("/load").HandlerFunc(Wallet.LoadTransactions)
-	r.PathPrefix("/api/wallet/network").Subrouter().Methods("GET").Path("/allNetwork").HandlerFunc(Wallet.AllNetwork)
-	r.PathPrefix("/api/wallet/currency").Subrouter().Methods("GET").Path("/allCurrency").HandlerFunc(Wallet.AllCurrency)
+	sub.Methods("POST").Path("/{operation:(?:signIn|signUp)}").HandlerFunc(Wallet.PostMethod)
+	sub.Methods("POST").Path("/Create").HandlerFunc(Wallet.PostMethod)
+	sub.Methods("GET").Path("/load").HandlerFunc(Wallet.LoadAccounts)
+	sub.Methods("POST").Path("/{operation:(?:Send|Buy)}").HandlerFunc(Wallet.PostMethod)
+	sub.Methods("GET").Path("/load").HandlerFunc(Wallet.LoadTransactions)
+	sub.Methods("GET").Path("/allNetwork").HandlerFunc(Wallet.AllNetwork)
+	sub.Methods("GET").Path("/allCurrency").HandlerFunc(Wallet.AllCurrency)
+	sub.Methods("POST").Path("/getTicket").HandlerFunc(Wallet.GetTicket)
+	sub.Methods("POST").Path("/TicketValidation").HandlerFunc(Wallet.TicketIsValid)
 
 	r.NotFoundHandler = http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			b, _ := json.Marshal(Utilitys.SelectException(10000, Exc))
+			b, _ := json.Marshal("Utilitys.SelectException(10000, Exc)")
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprintf(w, "%s", b)
 		})

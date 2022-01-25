@@ -23,113 +23,94 @@ type Customer struct {
 	CellNo     string
 	Email      string
 	createDate string
-	exceptions *[]Utilitys.Exceptions
-	Status     *Utilitys.Exceptions
 }
 
 var (
-	db *DbUtils.GreSQLResult
+	db  *DbUtils.GreSQLResult
+	err *Utilitys.LogInstance
 )
 
-func init() {
-	db = DbUtils.NewConnection(nil)
-}
-func New(e *[]Utilitys.Exceptions) *Customer {
+func New() (*Customer, *Utilitys.LogInstance) {
+	if db, err = DbUtils.NewConnection(nil); err != nil {
+		return nil, Utilitys.Logger("New", "Connection Error", db, err)
+	}
 	result := new(Customer)
 	result.id = uuid.NewRandom()
 	result.createDate = time.Now().String()
-	result.exceptions = e
-	return result
+	return result, nil
 }
-func (c *Customer) SignUp() {
-	if err := Utilitys.CheckMail(c.Email); err != true {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+func (c *Customer) SignUp() *Utilitys.LogInstance {
+
+	f := func(m string) *Utilitys.LogInstance {
+		return Utilitys.Logger("SignUp", m, c, err)
 	}
-	if err := Utilitys.CheckPassword(c.Password); err != true {
-		c.Status = Utilitys.SelectException(10001, c.exceptions)
-		return
+	if err = Utilitys.CheckMail(c.Email); err != nil {
+		f("Invalid Email")
 	}
-	if err := Utilitys.CheckPhoneNumber(c.CellNo); err != true {
-		c.Status = Utilitys.SelectException(10002, c.exceptions)
-		return
+	if err = Utilitys.CheckPassword(c.Password); err != nil {
+		f("Invalid Password")
 	}
-	if err := Utilitys.CheckName(c.UserName); err != true {
-		c.Status = Utilitys.SelectException(10003, c.exceptions)
-		return
+	if err = Utilitys.CheckPhoneNumber(c.CellNo); err != nil {
+		f("Invalid Phone number")
 	}
-	if err := Utilitys.CheckName(c.LastName); err != true {
-		c.Status = Utilitys.SelectException(10004, c.exceptions)
-		return
+	if err = Utilitys.CheckName(c.UserName); err != nil {
+		f("Invalid User Name")
+	}
+	if err = Utilitys.CheckName(c.LastName); err != nil {
+		f("Invalid Last Name")
 	}
 
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
-	}
 	db.Command = fmt.Sprintf("INSERT INTO public.\"Customers\"(\"ID\", \"FirstName\", \"SureName\", \"UserName\", \"Password\", \"CellNo\", \"Email\", \"createDate\")VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", c.id, c.FirstName, c.LastName, c.UserName, c.Password, c.CellNo, c.Email, c.createDate)
-	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
-	}
-	c.Status = Utilitys.SelectException(0, c.exceptions)
 
+	if err = db.PgExecuteNonQuery(); err != nil {
+		f("Invalid SQL Command")
+	}
+	return nil
 }
-func (c *Customer) SignIn() {
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+func (c *Customer) SignIn() *Utilitys.LogInstance {
+	f := func(m string) *Utilitys.LogInstance {
+		return Utilitys.Logger("SignIn", m, c, err)
 	}
 	db.Command = fmt.Sprintf("SELECT \"ID\", \"FirstName\", \"SureName\", \"UserName\", \"Password\", \"CellNo\", \"Email\", \"createDate\" FROM public.\"Customers\" c where c.\"UserName\"='%s' and c.\"Password\"='%s'", c.UserName, c.Password)
 	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+	if err = db.PgExecuteNonQuery(); err != nil {
+		f("SQL command Error")
 	}
 	var counter int = 0
 	for db.ResultSet.(*sql.Rows).Next() {
 		if err := db.ResultSet.(*sql.Rows).Scan(&c.id, &c.FirstName, &c.LastName, &c.UserName, &c.Password, &c.CellNo, &c.Email, &c.createDate); err != nil {
-			c.Status = Utilitys.SelectException(10000, c.exceptions)
-			return
+			f("SQL command Error")
 		}
 		counter++
 	}
-	if counter != 1 { //Not found
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+	if counter > 1 { // Error in Result
+		f("SQL command Error")
 	}
-	c.Status = Utilitys.SelectException(0, c.exceptions)
+	return nil
 }
-func (c *Customer) ChangePassword(newPass string) {
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+func (c *Customer) ChangePassword(newPass string) *Utilitys.LogInstance {
+	f := func(m string) *Utilitys.LogInstance {
+		return Utilitys.Logger("ChangePassword", m, c, err)
 	}
 	db.Command = fmt.Sprintf("SELECT count(*) FROM public.\"Customers\" c where c.\"UserName\"='%s' and c.\"Password\"='%s'", c.UserName, c.Password)
 	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+	if err = db.PgExecuteNonQuery(); err != nil {
+		f("SQL command Error")
 	}
 	var counter int = 0
 	for db.ResultSet.(*sql.Rows).Next() {
 		if err := db.ResultSet.(*sql.Rows).Scan(&counter); err != nil {
-			c.Status = Utilitys.SelectException(10000, c.exceptions)
-			return
+			return Utilitys.Logger("ChangePassword", "Result error", c, err)
 		}
 	}
 	if counter != 1 { //not found
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+		f("Cannot find Customer")
 	}
 
 	db.Command = fmt.Sprintf("UPDATE public.\"Customers\" c SET  \"Password\"='%s' WHERE c.\"UserName\"='%s' and c.\"Password\"='%s' ", newPass, c.UserName, c.Password)
 	db.PgExecuteNonQuery()
-	if db.Status.Key != 0 {
-		c.Status = Utilitys.SelectException(10000, c.exceptions)
-		return
+	if err = db.PgExecuteNonQuery(); err != nil {
+		f("Execute Command Error")
 	}
-
-	c.Status = Utilitys.SelectException(0, c.exceptions)
+	return nil
 }

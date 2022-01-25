@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mhthrh/WalletServices/Accounts"
+	"github.com/mhthrh/WalletServices/Consumers"
 	"github.com/mhthrh/WalletServices/Currencys"
 	"github.com/mhthrh/WalletServices/Customers"
 	"github.com/mhthrh/WalletServices/Networks"
@@ -14,61 +15,83 @@ import (
 	"net/http"
 )
 
-type RestApi interface {
-	Login(http.ResponseWriter, *http.Request)
-}
-
 var (
-	methods     *map[string]interface{}
-	user        *Customers.Customer
-	account     *Accounts.Account
-	transaction *Transactions.Transaction
+	methods *map[string]interface{}
 )
 
-func New(e *[]Utilitys.Exceptions) bool {
+func New() bool {
 
-	if account = Accounts.New(e); account.Status != nil {
-		return false
-	}
-	if transaction = Transactions.New(e); transaction.Status != nil {
-		return false
-	}
 	methods = &map[string]interface{}{
-		"signIn": func(i io.Reader) *Utilitys.Exceptions {
-			if user = Customers.New(e); user.Status != nil {
-				return Utilitys.SelectException(10000, e)
+		"signIn": func(i io.Reader) *Utilitys.LogInstance {
+			user, err := Customers.New()
+			if err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
 			}
-			json.NewDecoder(i).Decode(&user)
-			user.SignIn()
-			return user.Status
-		},
-		"signUp": func(i io.Reader) *Utilitys.Exceptions {
-			if user = Customers.New(e); user.Status != nil {
-				return Utilitys.SelectException(10000, e)
+			if err := json.NewDecoder(i).Decode(&user); err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
 			}
-			json.NewDecoder(i).Decode(&user)
-			user.SignUp()
-			return user.Status
+			if err := user.SignIn(); err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
+			}
+			return nil
 		},
-		"createAcc": func(i io.Reader) *Utilitys.Exceptions {
-			json.NewDecoder(i).Decode(&account)
-			account.Create()
-			return user.Status
+		"signUp": func(i io.Reader) *Utilitys.LogInstance {
+			user, err := Customers.New()
+			if err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
+			}
+			if err := json.NewDecoder(i).Decode(&user); err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
+			}
+			if err := user.SignUp(); err != nil {
+				return Utilitys.Logger("signIn", "Error", user, err)
+			}
+			return nil
 		},
-		"sendTrans": func(i io.Reader) *Utilitys.Exceptions {
-			json.NewDecoder(i).Decode(&transaction)
-			transaction.Send()
-			return user.Status
+		"createAcc": func(i io.Reader) *Utilitys.LogInstance {
+			account, err := Accounts.New()
+			if err != nil {
+				return Utilitys.Logger("signIn", "Error", account, err)
+			}
+			if err := json.NewDecoder(i).Decode(&account); err != nil {
+				return Utilitys.Logger("signIn", "Error", account, err)
+			}
+			if err := account.Create(); err != nil {
+				return Utilitys.Logger("signIn", "Error", account, err)
+			}
+			return nil
 		},
-		"buyTrans": func(i io.Reader) *Utilitys.Exceptions {
-			json.NewDecoder(i).Decode(&transaction)
-			transaction.Buy()
-			return user.Status
+		"sendTrans": func(i io.Reader) *Utilitys.LogInstance {
+			transaction, err := Transactions.New()
+			if err != nil {
+				return Utilitys.Logger("sendTrans", "Error", transaction, err)
+			}
+			if err := json.NewDecoder(i).Decode(&transaction); err != nil {
+				return Utilitys.Logger("sendTrans", "Error", transaction, err)
+			}
+
+			if err := transaction.Send(); err != nil {
+				return Utilitys.Logger("sendTrans", "Error", transaction, err)
+			}
+			return nil
+		},
+		"buyTrans": func(i io.Reader) *Utilitys.LogInstance {
+			transaction, err := Transactions.New()
+			if err != nil {
+				return Utilitys.Logger("buyTrans", "Error", transaction, err)
+			}
+			if err := json.NewDecoder(i).Decode(&transaction); err != nil {
+				return Utilitys.Logger("buyTrans", "Error", transaction, err)
+			}
+			if err := transaction.Buy(); err != nil {
+				return Utilitys.Logger("buyTrans", "Error", transaction, err)
+			}
+
+			return nil
 		},
 	}
 	return true
 }
-
 func PostMethod(w http.ResponseWriter, r *http.Request) {
 	op, ok := mux.Vars(r)["operation"]
 	if !ok {
@@ -77,8 +100,8 @@ func PostMethod(w http.ResponseWriter, r *http.Request) {
 	}
 	for i, j := range *methods {
 		if i == op {
-			if f, ok := j.(func(io.Reader) *Utilitys.Exceptions); ok {
-				if f(r.Body).Key == 0 {
+			if f, ok := j.(func(io.Reader) *Utilitys.LogInstance); ok {
+				if f(r.Body) == nil {
 					w.WriteHeader(http.StatusOK)
 					json.NewEncoder(w).Encode("OK")
 					return
@@ -89,13 +112,11 @@ func PostMethod(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 	json.NewEncoder(w).Encode("Nok")
 }
-
 func AllNetwork(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(Networks.Load())
 	fmt.Fprintf(w, "%s", b)
 	w.WriteHeader(http.StatusOK)
 }
-
 func AllCurrency(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(Currencys.Load())
 	fmt.Fprintf(w, "%s", b)
@@ -103,15 +124,50 @@ func AllCurrency(w http.ResponseWriter, r *http.Request) {
 
 }
 func LoadTransactions(w http.ResponseWriter, r *http.Request) {
-
-	b, _ := json.Marshal(transaction.Load())
+	transaction, err := Transactions.New()
+	if err != nil {
+		return
+	}
+	t, err := transaction.Load()
+	if err != nil {
+		return
+	}
+	b, _ := json.Marshal(t)
 	fmt.Fprintf(w, "%s", b)
 	w.WriteHeader(http.StatusOK)
 
 }
 func LoadAccounts(w http.ResponseWriter, r *http.Request) {
+	//var account Accounts.Account
+	account, err := Accounts.New()
+	a, err := account.Load()
+	if err != nil {
 
-	b, _ := json.Marshal(account.Load())
+	}
+	b, _ := json.Marshal(a)
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+
+}
+func GetTicket(w http.ResponseWriter, r *http.Request) {
+	t := Consumers.New()
+	json.NewDecoder(r.Body).Decode(&t.InputParameter)
+	t.GetTicket()
+	b, _ := json.Marshal(t.Ticket)
+	fmt.Fprintf(w, "%s", b)
+	w.WriteHeader(http.StatusOK)
+
+}
+func TicketIsValid(w http.ResponseWriter, r *http.Request) {
+	t := Consumers.New()
+
+	if err := t.IsValid(); err != nil {
+		return
+	}
+	json.NewDecoder(r.Body).Decode(&t.InputParameter)
+	t.IsValid()
+	t.Ticket = t.InputParameter.InputTicket
+	b, _ := json.Marshal(t.Ticket)
 	fmt.Fprintf(w, "%s", b)
 	w.WriteHeader(http.StatusOK)
 

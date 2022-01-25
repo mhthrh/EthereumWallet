@@ -4,185 +4,67 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"testing"
 )
 
-type SignUp struct {
-	FirstName string
-	LastName  string
-	UserName  string
-	Password  string
-	CellNo    string
-	Email     string
-	Status    interface{}
-}
-
-func Test_SignUp(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "Qaz@123456",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
+func Test_GetTicket(t *testing.T) {
+	type Request struct {
+		UserName string
+		Password string
+		IsTest   bool
 	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/wallet/login/signUp", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
-
-}
-func Test_SignIn(t *testing.T) {
-	person := &SignUp{
-		UserName: "mhthrh",
+	var response interface{}
+	req := &Request{
+		UserName: "Mohsen",
 		Password: "Qaz@123456",
+		IsTest:   true,
 	}
 	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/wallet/login/signIn", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	json.NewEncoder(&data).Encode(&req)
+	res, err := http.Post("http://127.0.0.1:8585/api/wallet/getTicket", "application/json", &data)
+	body, err := ioutil.ReadAll(res.Body)
 
-}
-func Test_CreateAcc(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
+	if err != nil {
+		panic(err.Error())
 	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	json.Unmarshal(body, &response)
 
-}
-func Test_sendTrans(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
-	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
-
-}
-func Test_BuyTrans(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
-	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
-
-}
-func Test_AllNetwork(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
-	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	fmt.Println(err)
+	fmt.Println(req)
+	fmt.Println(response)
+	fmt.Println(res.StatusCode)
 
 }
 
-func Test_AllCurrency(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
+func Test_IsValid(t *testing.T) {
+	type Request struct {
+		UserName    string
+		Password    string
+		InputTicket string
+		IsTest      bool
+	}
+	var response interface{}
+	req := &Request{
+		UserName:    "Mohsen",
+		Password:    "",
+		InputTicket: "123456",
+		IsTest:      true,
 	}
 	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	json.NewEncoder(&data).Encode(&req)
+	res, err := http.Post("http://127.0.0.1:8585/api/wallet/TicketValidation", "application/json", &data)
+	body, err := ioutil.ReadAll(res.Body)
 
-}
-func Test_LoadTransactions(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
+	if err != nil {
+		panic(err.Error())
 	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	json.Unmarshal(body, &response)
 
-}
-func Test_LoadAccounts(t *testing.T) {
-	person := &SignUp{
-		FirstName: "Mohsen",
-		LastName:  "Taheri",
-		UserName:  "mhthrh",
-		Password:  "654321",
-		CellNo:    "09190352044",
-		Email:     "mhthrh@gmail.com",
-		Status:    nil,
-	}
-	var data bytes.Buffer
-	json.NewEncoder(&data).Encode(&person)
-	res, err := http.Post("http://127.0.0.1:8585/api/Wallet/login/signin", "application/json", &data)
-	if err != nil || res.StatusCode != 200 {
-		log.Fatalf("Error: %v | Status: %s", err, res.Status)
-	}
-	fmt.Println("Ok")
+	fmt.Println(err)
+	fmt.Println(req)
+	fmt.Println(response)
+	fmt.Println(res.StatusCode)
 
 }
