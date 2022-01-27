@@ -18,7 +18,7 @@ func Test_GetTicket(t *testing.T) {
 	var response interface{}
 	req := &Request{
 		UserName: "Mohsen",
-		Password: "Qaz@123456",
+		Password: "3456",
 		IsTest:   true,
 	}
 	var data bytes.Buffer
