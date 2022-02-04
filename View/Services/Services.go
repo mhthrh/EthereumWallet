@@ -2,7 +2,6 @@ package Services
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mhthrh/WalletServices/Controler/Wallet"
@@ -11,22 +10,17 @@ import (
 
 func RunApi(endpoint string) error {
 	router := mux.NewRouter()
-	if !RunApiOnRouter(router) {
-		return errors.New("fucking wallet Not initialize")
-	}
+	RunApiOnRouter(router)
 	return http.ListenAndServe(endpoint, router)
 }
 
-func RunApiOnRouter(r *mux.Router) bool {
-	if !Wallet.New() {
-		return false
-	}
-	sub := r.PathPrefix("/api/wallet").Subrouter()
+func RunApiOnRouter(r *mux.Router) {
 
-	sub.Methods("POST").Path("/{operation:(?:signIn|signUp)}").HandlerFunc(Wallet.PostMethod)
-	sub.Methods("POST").Path("/Create").HandlerFunc(Wallet.PostMethod)
+	sub := r.PathPrefix("/api/wallet").Subrouter()
+	sub.Methods("POST").Path("/{operation:(?:signIn|signUp)}").HandlerFunc(Wallet.Login)
+	sub.Methods("POST").Path("/Create").HandlerFunc(Wallet.CreateAcc)
 	sub.Methods("GET").Path("/load").HandlerFunc(Wallet.LoadAccounts)
-	sub.Methods("POST").Path("/{operation:(?:Send|Buy)}").HandlerFunc(Wallet.PostMethod)
+	sub.Methods("POST").Path("/{operation:(?:Send|Buy)}").HandlerFunc(Wallet.DealWith)
 	sub.Methods("GET").Path("/load").HandlerFunc(Wallet.LoadTransactions)
 	sub.Methods("GET").Path("/allNetwork").HandlerFunc(Wallet.AllNetwork)
 	sub.Methods("GET").Path("/allCurrency").HandlerFunc(Wallet.AllCurrency)
@@ -39,5 +33,4 @@ func RunApiOnRouter(r *mux.Router) bool {
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprintf(w, "%s", b)
 		})
-	return true
 }

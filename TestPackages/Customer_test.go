@@ -2,7 +2,7 @@ package TestPackages
 
 import (
 	"fmt"
-	"github.com/mhthrh/WalletServices/Customers"
+	"github.com/mhthrh/WalletServices/Model/Customers"
 	"testing"
 )
 

@@ -28,10 +28,8 @@ func SetConsoleTitle(title string) (int, error) {
 func ReadLine() string {
 
 	isDebug := func() bool {
-		// gops executable must be in the path. See https://github.com/google/gops
 		gopsOut, err := exec.Command("gops", strconv.Itoa(os.Getppid())).Output()
 		if err == nil && strings.Contains(string(gopsOut), "\\dlv.exe") {
-			// our parent process is (probably) the Delve debugger
 			return true
 		}
 		return false

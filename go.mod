@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/DrBenton/minidic v0.0.0-20170930222605-91302b37f38e // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect

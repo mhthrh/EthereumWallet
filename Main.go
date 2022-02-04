@@ -1,14 +1,16 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"github.com/mhthrh/WalletServices/Utilitys"
 	"github.com/mhthrh/WalletServices/View/Services"
 )
 
 func main() {
-	addr := flag.String("addr", ":8585", "the TCP address for the server to listen on, in the form 'host:port'")
-	fmt.Println(fmt.Sprintf("initalising server on %s", *addr))
-	Services.RunApi(*addr)
-
+	//Utility's.WriteConfig()
+	Utilitys.SetConsoleTitle("Crypto Services")
+	cfg := Utilitys.ReadConfig("ApplicationFiles/ConfigCoded.json")
+	s := fmt.Sprintf("%s:%d", cfg.Server.IP, cfg.Server.Port)
+	fmt.Println("initialising server on: ", s)
+	Services.RunApi(s)
 }

@@ -2,7 +2,7 @@ package TestPackages
 
 import (
 	"fmt"
-	"github.com/mhthrh/WalletServices/Accounts"
+	"github.com/mhthrh/WalletServices/Model/Accounts"
 	"github.com/pborman/uuid"
 	"reflect"
 	"testing"
