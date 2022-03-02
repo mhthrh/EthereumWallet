@@ -14,7 +14,7 @@ func BytesToString(b []byte) string {
 	return bytes.NewBuffer(b).String()
 }
 
-func RandString(n int) string {
+func RandomString(n int) string {
 	letterBytes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, n)
 	for i := range b {

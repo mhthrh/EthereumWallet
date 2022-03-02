@@ -5,13 +5,23 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mhthrh/WalletServices/Controler/Wallet"
+	"github.com/mhthrh/WalletServices/Utilitys"
+	"github.com/mhthrh/WalletServices/Utilitys/Redis"
 	"net/http"
 )
 
-func RunApi(endpoint string) error {
+func RunApi() error {
+	var cfg Utilitys.Config
+
+	c, _ := Redis.New().Get("cfg")
+	json.Unmarshal([]byte(c), &cfg)
+
+	s := fmt.Sprintf("%s:%d", cfg.Server.IP, cfg.Server.Port)
+	fmt.Println("initialising server on: ", s)
+
 	router := mux.NewRouter()
 	RunApiOnRouter(router)
-	return http.ListenAndServe(endpoint, router)
+	return http.ListenAndServe(s, router)
 }
 
 func RunApiOnRouter(r *mux.Router) {

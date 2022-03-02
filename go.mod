@@ -4,13 +4,13 @@ go 1.17
 
 require (
 	github.com/ethereum/go-ethereum v1.10.15
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/lib/pq v1.10.4
 	github.com/pborman/uuid v1.2.1
 )
 
 require (
-	github.com/DrBenton/minidic v0.0.0-20170930222605-91302b37f38e // indirect
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect

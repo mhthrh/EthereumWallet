@@ -50,7 +50,7 @@ func (c *Consumer) GetTicket() *Utilitys.LogInstance {
 		return nil
 	}
 
-	crypt.Text = fmt.Sprintf("%s%s", time.Now().Format("21122006 134225"), Utilitys.RandString(10))
+	crypt.Text = fmt.Sprintf("%s%s", time.Now().Format("21122006 134225"), Utilitys.RandomString(10))
 	if err := crypt.Sha256(); err != nil {
 		return Utilitys.Logger("GetTicket", "crypt", c, err)
 	}

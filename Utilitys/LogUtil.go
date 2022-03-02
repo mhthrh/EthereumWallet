@@ -26,7 +26,6 @@ type Log struct {
 	value           []LogInstance `json:"value"`
 	FinishTimeStamp string        `json:"StartTimeStamp"`
 }
-
 type ResultSet struct {
 	Code        string
 	Description string
